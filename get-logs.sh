@@ -10,7 +10,18 @@ fail() { printf '\e[31m%s - exiting\e[0m\n' "$*"; exit 1; }
 
 [[ $EUID -eq 0 ]] || fail "Run as root ..."
 
+
+# ─────────  estimate archive size and confirmation
+
+sources=(/var/log /var/lib/waagent)
+archive_size() {
+  local bytes
+  bytes=$(tar -czf - "${sources[@]}" 2>/dev/null | wc -c)
+  numfmt --to=iec --suffix=B --format="%.1f" "$bytes"
+}
+
 echo
+log "Estimated log archive size: $(archive_size)"
 read -rp $'\e[32mContinue with collecting system information and logs? [y/n] \e[0m' reply
 echo
 if [[ ! $reply =~ ^[Yy]$ ]]; then
