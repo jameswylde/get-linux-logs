@@ -22,7 +22,7 @@ archive_size() {
 }
 
 echo
-warn "Estimated log archive size: $(archive_size)"
+warn "     Estimated log archive size: $(archive_size)"
 read -rp $'\e[32mContinue? [y/n] \e[0m' reply
 echo
 if [[ ! $reply =~ ^[Yy]$ ]]; then
@@ -47,14 +47,14 @@ mkdir -p "$diag_dir"
 
 
 # ───────── grab /var/logs/ and /var/lib/waagent
-log "[1/3] Copying log directories ..."
+log "     [1/3] Copying log directories ..."
 echo
 copy_path /var/log              "$diag_dir"
 copy_path /var/lib/waagent      "$diag_dir"
 
 
 # ───────── grab system information & restarts
-log "[2/3] Gathering system information ..."
+log "     [2/3] Gathering system information ..."
 echo
 {
   cat /etc/*-release
@@ -88,7 +88,7 @@ fi
 archive="diagnostics-${ts}.tar.gz"
 tar -czf "$archive" "$diag_dir"
 rm -rf "$diag_dir"
-log "[3/3] Archive created → $(pwd)/$archive"
+log "     [3/3] Archive created → $(pwd)/$archive"
 echo
 
 
@@ -98,9 +98,10 @@ if command -v azcopy &>/dev/null; then
   if [[ $choice =~ ^[Yy]$ ]]; then
     read -rp $'\e[32mEnter SAS URI: \e[0m' sas_uri
     echo
-    log "Uploading ..."
+    log "     Uploading ..."
     echo
     azcopy copy "$archive" "$sas_uri" 2>&1 | awk '/^Final Job Status:/ {print; exit}'
+    echo
   fi
 else
   warn "azcopy not found - skipping ..."
