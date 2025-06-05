@@ -10,6 +10,7 @@ fail() { printf '\e[31m%s - exiting\e[0m\n' "$*"; exit 1; }
 
 [[ $EUID -eq 0 ]] || fail "Run as root ..."
 
+echo $'\e[32mGetting logs ...\e[0m'
 
 # ─────────  estimate archive size and confirmation
 
