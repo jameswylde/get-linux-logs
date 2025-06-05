@@ -97,9 +97,10 @@ if command -v azcopy &>/dev/null; then
   read -rp $'\e[32mUpload the archive with azcopy [y/n]? \e[0m' choice
   if [[ $choice =~ ^[Yy]$ ]]; then
     read -rp $'\e[32mEnter SAS URI: \e[0m' sas_uri
+    echo
     log "Uploading ..."
     echo
-    azcopy copy "$archive" "$sas_uri"
+    azcopy copy "$archive" "$sas_uri" 2>&1 | awk '/^Final Job Status:/ {print; exit}'
   fi
 else
   warn "azcopy not found - skipping ..."
