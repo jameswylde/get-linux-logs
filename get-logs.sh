@@ -33,13 +33,13 @@ mkdir -p "$diag_dir"
 
 
 # ───────── grab /var/logs/ and /var/lib/waagent
-log "[1/3] Copying log directories ..."
+log $"[1/3] Copying log directories ...\n"
 copy_path /var/log              "$diag_dir"
 copy_path /var/lib/waagent      "$diag_dir"
 
 
 # ───────── grab system information & restarts
-log "[2/3] Gathering system information ..."
+log $"[2/3] Gathering system information ...\n"
 {
   cat /etc/*-release
   echo
@@ -72,7 +72,7 @@ fi
 archive="diagnostics-${ts}.tar.gz"
 tar -czf "$archive" "$diag_dir"
 rm -rf "$diag_dir"
-log "[3/3] Archive created → $(pwd)/$archive"
+log $"[3/3] Archive created → $(pwd)/$archive\n"
 
 
 # ───────── optional azcopy upload
@@ -80,7 +80,7 @@ if command -v azcopy &>/dev/null; then
   read -rp $'\e[32mUpload the archive with azcopy (y/n)? \e[0m' choice
   if [[ $choice =~ ^[Yy]$ ]]; then
     read -rp $'\e[32mEnter SAS URI: \e[0m' sas_uri
-    log "Uploading …"
+    log $"Uploading ...\n"
     azcopy copy "$archive" "$sas_uri"
   fi
 else
