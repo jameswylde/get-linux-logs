@@ -10,6 +10,7 @@ fail() { printf '\e[31m%s - exiting\e[0m\n' "$*"; exit 1; }
 
 [[ $EUID -eq 0 ]] || fail "Run as root ..."
 
+echo
 read -rp $'\e[32mContinue with collecting system information and logs? [y/n] \e[0m' reply
 echo
 if [[ ! $reply =~ ^[Yy]$ ]]; then
