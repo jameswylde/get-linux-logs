@@ -21,7 +21,7 @@ archive_size() {
 }
 
 echo
-log "Estimated log archive size: $(archive_size)"
+warn "Estimated log archive size: $(archive_size)"
 read -rp $'\e[32mContinue with collecting system information and logs? [y/n] \e[0m' reply
 echo
 if [[ ! $reply =~ ^[Yy]$ ]]; then
