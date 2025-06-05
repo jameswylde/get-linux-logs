@@ -1,0 +1,88 @@
+
+#!/usr/bin/env bash
+
+set -euo pipefail
+IFS=$'\n\t'
+
+log()  { printf '\e[96m%s\e[0m\n' "$*"; }
+warn() { printf '\e[33m%s\e[0m\n' "$*"; }
+fail() { printf '\e[31m%s - exiting\e[0m\n' "$*"; exit 1; }
+
+[[ $EUID -eq 0 ]] || fail "Run as root ..."
+
+read -rp $'\e[32mContinue with collecting system information and logs? [y/n] \e[0m' reply
+if [[ ! $reply =~ ^[Yy]$ ]]; then
+  log "Terminating ..."
+  exit 0
+fi
+
+copy_path() {
+  local src=$1 dest=$2
+  if [[ -e $src ]]; then
+    cp -a --parents "$src" "$dest" 2>/dev/null || warn "Could not copy $src ..."
+  else
+    warn "$src not found ..."
+  fi
+}
+
+ts=$(date '+%Y%m%d-%H%M%S')
+host=$(hostname)
+tz=$(date '+%Z')
+diag_dir="diagnostics-${ts}"
+mkdir -p "$diag_dir"
+
+
+# ───────── grab /var/logs/ and /var/lib/waagent
+log "[1/3] Copying log directories ..."
+copy_path /var/log              "$diag_dir"
+copy_path /var/lib/waagent      "$diag_dir"
+
+
+# ───────── grab system information & restarts
+log "[2/3] Gathering system information ..."
+{
+  cat /etc/*-release
+  echo
+  uname -a
+  echo
+  df -hT
+  echo
+  ps -eo pid,ppid,user,pcpu,pmem,args --sort=-pcpu | head -n 50
+} > "$diag_dir/system-${ts}-${tz}-${host}.txt"
+
+if command -v journalctl &>/dev/null; then
+  journalctl --no-pager --quiet --list-boots | head -n 20
+else
+  last -x | grep -E '^(shutdown|reboot|system boot)' | head -n 20
+fi > "$diag_dir/restarts-${ts}-${tz}-${host}.txt"
+
+
+# ───────── grab Azure metadata
+if command -v curl &>/dev/null; then
+  if ! curl -sf --connect-timeout 2 \
+        -H "Metadata: true" \
+        "http://169.254.169.254/metadata/instance?api-version=2021-02-01" \
+        -o "$diag_dir/azure-metadata-${ts}.json"; then
+    rm -f "$diag_dir/azure-metadata-${ts}.json"
+  fi
+fi
+
+
+# ───────── archive & cleanup
+archive="diagnostics-${ts}.tar.gz"
+tar -czf "$archive" "$diag_dir"
+rm -rf "$diag_dir"
+log "[3/3] Archive created → $(pwd)/$archive"
+
+
+# ───────── optional azcopy upload
+if command -v azcopy &>/dev/null; then
+  read -rp $'\e[32mUpload the archive with azcopy (y/n)? \e[0m' choice
+  if [[ $choice =~ ^[Yy]$ ]]; then
+    read -rp $'\e[32mEnter SAS URI: \e[0m' sas_uri
+    log "Uploading …"
+    azcopy copy "$archive" "$sas_uri"
+  fi
+else
+  warn "azcopy not found - skipping ..."
+fi
