@@ -75,7 +75,8 @@ fi
 archive="diagnostics-${ts}.tar.gz"
 tar -czf "$archive" "$diag_dir"
 rm -rf "$diag_dir"
-log $"[3/3] Archive created → $(pwd)/$archive\n"
+log "[3/3] Archive created → $(pwd)/$archive"
+echo
 
 
 # ───────── optional azcopy upload
