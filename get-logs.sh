@@ -66,13 +66,13 @@ echo
   df -hT
   echo
   ps -eo pid,ppid,user,pcpu,pmem,args --sort=-pcpu | head -n 50
-} > "$diag_dir/systeminfo.txt"
+} > "$diag_dir/system-${ts}-${tz}-${host}.txt"
 
 if command -v journalctl &>/dev/null; then
   journalctl --no-pager --quiet --list-boots | head -n 20
 else
   last -x | grep -E '^(shutdown|reboot|system boot)' | head -n 20
-fi > "$diag_dir/restarts.txt"
+fi > "$diag_dir/restarts-${ts}-${tz}-${host}.txt"
 
 
 # ───────── grab Azure metadata
