@@ -37,6 +37,7 @@ copy_path() {
     cp -a --parents "$src" "$dest" 2>/dev/null || warn "Could not copy $src ..."
   else
     warn " $src not found ..."
+    log ""
   fi
 }
 
