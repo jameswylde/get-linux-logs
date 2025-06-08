@@ -10,7 +10,7 @@ fail() { printf '\e[31m%s - exiting\e[0m\n' "$*"; exit 1; }
 
 [[ $EUID -eq 0 ]] || fail "Run as root ..."
 log ""
-log " Starting..."
+log " Starting ..."
 
 # ─────────  estimate archive size and confirmation
 
@@ -98,11 +98,11 @@ echo
 if command -v azcopy &>/dev/null; then
   read -rp $'\e[32m     Upload the archive with azcopy [y/n]? \e[0m' choice
   if [[ $choice =~ ^[Yy]$ ]]; then
-    read -rp $'\e[32mEnter SAS URI: \e[0m' sas_uri
+    read -rp $'\e[32m     Enter SAS URI: \e[0m' sas_uri
     echo
     log " Uploading ..."
     echo
-    azcopy copy "$archive" "$sas_uri" 2>&1 | awk '/^Final Job Status:/ {print; exit}'
+    azcopy copy "$archive" "$sas_uri" 2>&1 #| awk '/^Final Job Status:/ {print; exit}'
     echo
   fi
 else
