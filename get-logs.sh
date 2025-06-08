@@ -41,7 +41,7 @@ copy_path() {
   fi
 }
 
-ts=$(date '+%Y-%m-%d%_H%M%S')
+ts=$(date '+%Y-%m-%d%__H%M%S')
 host=$(hostname)
 tz=$(date '+%Z')
 diag_dir="$host-${ts}"
@@ -68,14 +68,12 @@ echo
   ps -eo pid,ppid,user,pcpu,pmem,args --sort=-pcpu | head -n 50
 } > "$diag_dir/system.txt"
 
-#if command -v journalctl &>/dev/null; then
-#  journalctl --no-pager --list-boots | head -n 20
-#else
-#  last -x | grep -E '^(shutdown|reboot|system boot)' | head -n 20
-#fi > "$diag_dir/restarts.txt"
+if command -v journalctl &>/dev/null; then
+  journalctl --no-pager --list-boots | tail -n 50
+else
+  last -x | grep -E '^(shutdown|reboot|system boot)' | tail -n 50
+fi > "$diag_dir/restarts.txt"
 
-journalctl --no-pager --list-boots | head -n 50 > "$diag_dir/restarts.txt" && echo "" >> "$diag_dir/restarts.txt"
-last -x | grep -E '^(shutdown|reboot|system boot)' | head -n 20 >> "$diag_dir/restarts.txt"
 
 # ───────── grab Azure metadata
 if command -v curl &>/dev/null; then
