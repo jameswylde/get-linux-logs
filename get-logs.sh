@@ -41,7 +41,7 @@ copy_path() {
   fi
 }
 
-ts=$(date '+%Y-%m-%d-%H:%M:%S')
+ts=$(date '+%Y%m%d-%H%M%S')
 host=$(hostname)
 tz=$(date '+%Z')
 diag_dir="$host-${ts}"
