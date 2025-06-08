@@ -41,7 +41,7 @@ copy_path() {
   fi
 }
 
-ts=$(date '+%Y%m%d-%H%M%S')
+ts=$(date '+%Y-%m-%d-%H:%M:%S')
 host=$(hostname)
 tz=$(date '+%Z')
 diag_dir="$host-${ts}"
@@ -66,13 +66,13 @@ echo
   df -hT
   echo
   ps -eo pid,ppid,user,pcpu,pmem,args --sort=-pcpu | head -n 50
-} > "$diag_dir/system-${ts}-${tz}-${host}.txt"
+} > "$diag_dir/systeminfo.txt"
 
 if command -v journalctl &>/dev/null; then
   journalctl --no-pager --quiet --list-boots | head -n 20
 else
   last -x | grep -E '^(shutdown|reboot|system boot)' | head -n 20
-fi > "$diag_dir/restarts-${ts}-${tz}-${host}.txt"
+fi > "$diag_dir/restarts.txt"
 
 
 # ───────── grab Azure metadata
@@ -99,8 +99,6 @@ if command -v azcopy &>/dev/null; then
   read -rp $'\e[32m     Upload the archive with azcopy [y/n]? \e[0m' choice
   if [[ $choice =~ ^[Yy]$ ]]; then
     read -rp $'\e[32m     Enter SAS URI: \e[0m' sas_uri
-    echo
-    log " Uploading ..."
     echo
     azcopy copy "$archive" "$sas_uri" 2>&1 #| awk '/^Final Job Status:/ {print; exit}'
     echo
