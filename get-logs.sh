@@ -44,7 +44,7 @@ copy_path() {
 ts=$(date '+%Y%m%d-%H%M%S')
 host=$(hostname)
 tz=$(date '+%Z')
-diag_dir="diagnostics-${ts}"
+diag_dir="$host-${ts}"
 mkdir -p "$diag_dir"
 
 
@@ -87,7 +87,7 @@ fi
 
 
 # ───────── archive & cleanup
-archive="diagnostics-${ts}.tar.gz"
+archive="$host-${ts}.tar.gz"
 tar -czf "$archive" "$diag_dir"
 rm -rf "$diag_dir"
 log " [3/3] Archive created → $(pwd)/$archive"
