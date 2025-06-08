@@ -49,7 +49,7 @@ mkdir -p "$diag_dir"
 
 
 # ───────── grab /var/logs/ and /var/lib/waagent
-log " [1/3] Copying log directories ..."
+log " [1/3] Zipping log directories ..."
 echo
 copy_path /var/log "$diag_dir"
 copy_path /var/lib/waagent "$diag_dir"
