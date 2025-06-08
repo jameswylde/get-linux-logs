@@ -10,7 +10,7 @@ fail() { printf '\e[31m%s - exiting\e[0m\n' "$*"; exit 1; }
 
 [[ $EUID -eq 0 ]] || fail "Run as root ..."
 log ""
-log "     Starting..."
+log " Starting..."
 
 # ─────────  estimate archive size and confirmation
 
@@ -22,12 +22,12 @@ archive_size() {
 }
 
 echo
-warn "     Estimated log archive size: $(archive_size)"
+warn " Estimated log archive size: $(archive_size)"
 echo
-read -rp $'\e[32mContinue? [y/n] \e[0m' reply
+read -rp $'\e[32m     Continue? [y/n] \e[0m' reply
 echo
 if [[ ! $reply =~ ^[Yy]$ ]]; then
-  log "     Terminating ..."
+  log " Terminating ..."
   exit 0
 fi
 
@@ -36,7 +36,7 @@ copy_path() {
   if [[ -e $src ]]; then
     cp -a --parents "$src" "$dest" 2>/dev/null || warn "Could not copy $src ..."
   else
-    warn "$src not found ..."
+    warn " $src not found ..."
   fi
 }
 
@@ -48,14 +48,14 @@ mkdir -p "$diag_dir"
 
 
 # ───────── grab /var/logs/ and /var/lib/waagent
-log "     [1/3] Copying log directories ..."
+log " [1/3] Copying log directories ..."
 echo
-copy_path /var/log              "$diag_dir"
-copy_path /var/lib/waagent      "$diag_dir"
+copy_path /var/log "$diag_dir"
+copy_path /var/lib/waagent "$diag_dir"
 
 
 # ───────── grab system information & restarts
-log "     [2/3] Gathering system information ..."
+log " [2/3] Gathering system information ..."
 echo
 {
   cat /etc/*-release
@@ -89,22 +89,22 @@ fi
 archive="diagnostics-${ts}.tar.gz"
 tar -czf "$archive" "$diag_dir"
 rm -rf "$diag_dir"
-log "     [3/3] Archive created → $(pwd)/$archive"
+log " [3/3] Archive created → $(pwd)/$archive"
 echo
 
 
 # ───────── optional azcopy upload
 if command -v azcopy &>/dev/null; then
-  read -rp $'\e[32mUpload the archive with azcopy [y/n]? \e[0m' choice
+  read -rp $'\e[32m     Upload the archive with azcopy [y/n]? \e[0m' choice
   if [[ $choice =~ ^[Yy]$ ]]; then
     read -rp $'\e[32mEnter SAS URI: \e[0m' sas_uri
     echo
-    log "     Uploading ..."
+    log " Uploading ..."
     echo
     azcopy copy "$archive" "$sas_uri" 2>&1 | awk '/^Final Job Status:/ {print; exit}'
     echo
   fi
 else
-  warn "azcopy not found - skipping ..."
+  warn " azcopy not found - skipping ..."
   echo
 fi
