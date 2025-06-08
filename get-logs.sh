@@ -41,7 +41,7 @@ copy_path() {
   fi
 }
 
-ts=$(date '+%Y%m%d-%H%M%S')
+ts=$(date '+%Y-%m-%d%_H%M%S')
 host=$(hostname)
 tz=$(date '+%Z')
 diag_dir="$host-${ts}"
@@ -66,13 +66,13 @@ echo
   df -hT
   echo
   ps -eo pid,ppid,user,pcpu,pmem,args --sort=-pcpu | head -n 50
-} > "$diag_dir/system-${ts}-${tz}-${host}.txt"
+} > "$diag_dir/system.txt"
 
 if command -v journalctl &>/dev/null; then
   journalctl --no-pager --quiet --list-boots | head -n 20
 else
   last -x | grep -E '^(shutdown|reboot|system boot)' | head -n 20
-fi > "$diag_dir/restarts-${ts}-${tz}-${host}.txt"
+fi > "$diag_dir/restarts.txt"
 
 
 # ───────── grab Azure metadata
@@ -80,8 +80,8 @@ if command -v curl &>/dev/null; then
   if ! curl -sf --connect-timeout 2 \
         -H "Metadata: true" \
         "http://169.254.169.254/metadata/instance?api-version=2021-02-01" \
-        -o "$diag_dir/azure-metadata-${ts}.json"; then
-    rm -f "$diag_dir/azure-metadata-${ts}.json"
+        -o "$diag_dir/azure-metadata.json"; then
+    rm -f "$diag_dir/azure-metadata.json"
   fi
 fi
 
