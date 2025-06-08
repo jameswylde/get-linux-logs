@@ -27,7 +27,7 @@ echo
 read -rp $'\e[32mContinue? [y/n] \e[0m' reply
 echo
 if [[ ! $reply =~ ^[Yy]$ ]]; then
-  log "Terminating ..."
+  log "     Terminating ..."
   exit 0
 fi
 
